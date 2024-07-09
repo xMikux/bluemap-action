@@ -1,0 +1,11 @@
+name: Test Workflows
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - dev
+
+jobs:
+  render:
+    uses: ./.github/workflows/bluemap.yml

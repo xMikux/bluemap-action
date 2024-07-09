@@ -1,0 +1,77 @@
+name: BlueMap Render & Deploy
+
+on:
+  workflow_call:
+    inputs:
+      # GH Action
+      runner-name:
+        required: false
+        description: "Set the runner name. Default is `ubuntu-latest`"
+        type: string
+        default: "ubuntu-latest"
+      # BlueMap
+      bluemap-version:
+        required: false
+        description: "BlueMap version"
+        type: string
+        default: "5.2"
+      # Misc
+      workdir:
+        required: false
+        description: "The map config path."
+        type: string
+      maps_list:
+        required: false
+        description: "Map list, separated by comma."
+        type: string
+
+jobs:
+  render-deploy:
+    name: Render & Deploy
+    runs-on: ${{ inputs.runner-name }}
+
+    steps:
+      ### Checkout Main & act repo ###
+      - name: Checkout Repository - Main
+        uses: actions/checkout@v4
+      
+      - name: Checkout Repository - BlueMap Action
+        uses: actions/checkout@v4
+        with:
+          repository: EfinaProjects/bluemap-action
+          path: bluemap-act
+
+      ### Setup require tools ###
+      - name: Setup - Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Setup - Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup - Poetry
+        uses: abatilo/actions-poetry@v3
+
+      - name: Setup - Poetry install dependencies
+        run: |
+          poetry install
+        working-directory: bluemap-act
+
+      - name: Setup - BlueMap
+        run: |
+          wget -O cli.jar https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v${{ inputs.bluemap-version }}/BlueMap-${{ inputs.bluemap-version }}-cli.jar
+          java -jar cli.jar -V 
+        working-directory: bluemap-act
+
+
+      # - name: Publish
+      #   uses: South-Paw/action-netlify-cli@v2
+      #   with:
+      #     args: 'deploy --json --dir \"./public\" --message \"draft [${{ github.sha }}]\"'
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
