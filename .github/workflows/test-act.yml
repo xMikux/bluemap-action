@@ -9,9 +9,10 @@ on:
 jobs:
   render:
     uses: ./.github/workflows/bluemap.yml
-    secrets:
+    with:
       workdir_path: "Test"
       maps_list: "world world_nether world_the_end"
+    secrets:
       SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
       SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
       SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
