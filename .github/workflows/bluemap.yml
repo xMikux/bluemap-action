@@ -4,31 +4,41 @@ on:
   workflow_call:
     inputs:
       # GH Action
-      runner-name:
+      runner_name:
         required: false
         description: "Set the runner name. Default is `ubuntu-latest`"
         type: string
         default: "ubuntu-latest"
       # BlueMap
-      bluemap-version:
+      bluemap_version:
         required: false
         description: "BlueMap version"
         type: string
         default: "5.2"
       # Misc
-      workdir:
+      workdir_path:
         required: false
-        description: "The map config path."
+        description: "Bluemap workdir."
         type: string
       maps_list:
         required: false
-        description: "Map list, separated by comma."
+        description: "Map list, separated by space."
         type: string
+    secrets:
+      SFTP_HOST_NAME:
+        required: true
+        description: "SFTP Host Name"
+      SFTP_USER_NAME:
+        required: true
+        description: "SFTP User Name"
+      SFTP_PASSWORD:
+        required: true
+        description: "SFTP Password"
 
 jobs:
   render-deploy:
     name: Render & Deploy
-    runs-on: ${{ inputs.runner-name }}
+    runs-on: ${{ inputs.runner_name }}
 
     steps:
       ### Checkout Main & act repo ###
@@ -63,10 +73,24 @@ jobs:
 
       - name: Setup - BlueMap
         run: |
-          wget -O cli.jar https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v${{ inputs.bluemap-version }}/BlueMap-${{ inputs.bluemap-version }}-cli.jar
+          wget -O cli.jar https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v${{ inputs.bluemap_version }}/BlueMap-${{ inputs.bluemap_version }}-cli.jar
           java -jar cli.jar -V 
         working-directory: bluemap-act
 
+      ### Download Maps ###
+      - name: Poetry - SFTP Download
+        run: |
+          poetry run python bluemap-act/scripts/sftp_downloader.py
+          du -sh Maps
+          ls -alh Maps        
+        env:
+          SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
+          SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          MAP_LIST: ${{ inputs.maps_list }}
+        working-directory: ${{ inputs.workdir_path }}
+
+      ### Download Maps Cache
 
       # - name: Publish
       #   uses: South-Paw/action-netlify-cli@v2

@@ -9,3 +9,7 @@ on:
 jobs:
   render:
     uses: ./.github/workflows/bluemap.yml
+    secrets:
+      SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
+      SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
+      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
