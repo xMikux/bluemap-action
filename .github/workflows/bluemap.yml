@@ -81,9 +81,7 @@ jobs:
       ### Download Maps ###
       - name: Poetry - SFTP Download
         run: |
-          ls -alh
-          ls bluemap-act
-          poetry run python ./bluemap-act/scripts/sftp_downloader.py
+          poetry run python $GITHUB_WORKSPACE/bluemap-act/scripts/sftp_downloader.py
           du -sh Maps
           ls -alh Maps        
         env:
