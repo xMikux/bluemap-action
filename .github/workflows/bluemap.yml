@@ -68,8 +68,9 @@ jobs:
 
       - name: Setup - Poetry install dependencies
         run: |
+          cp bluemap-act/pyproject.toml .
+          cp bluemap-act/poetry.lock .
           poetry install
-        working-directory: bluemap-act
 
       - name: Setup - BlueMap
         run: |
