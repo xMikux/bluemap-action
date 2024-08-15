@@ -10,7 +10,7 @@ jobs:
   render:
     uses: ./.github/workflows/bluemap.yml
     with:
-      # runner_name: "namespace-profile-default"
+      runner_name: "namespace-profile-bluemap"
       workdir_path: "Test"
       maps_list: "world world_nether world_the_end"
     secrets:
