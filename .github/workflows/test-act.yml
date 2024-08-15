@@ -10,10 +10,10 @@ jobs:
   render:
     uses: ./.github/workflows/bluemap.yml
     with:
+      runner_name: "namespace-profile-default"
       workdir_path: "Test"
       maps_list: "world world_nether world_the_end"
     secrets:
-      runner_name: "namespace-profile-default"
       SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
       SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
       SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
