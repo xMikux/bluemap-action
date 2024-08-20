@@ -68,8 +68,15 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force > /dev/null
+
           sudo swapoff -a > /dev/null
           sudo rm -f /mnt/swapfile
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/lib/google-cloud-sdk
+          sudo rm -rf /usr/lib/firefox
+          sudo rm -rf /opt/microsoft/msedge
+          sudo rm -rf /usr/local/share/chromium
+
           echo "After cleanup:"
           sudo df -h
           sudo free -h
