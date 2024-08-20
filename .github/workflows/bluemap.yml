@@ -76,6 +76,7 @@ jobs:
           sudo rm -rf /usr/lib/firefox
           sudo rm -rf /opt/microsoft/msedge
           sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/.ghcup
 
           echo "After cleanup:"
           sudo df -h
