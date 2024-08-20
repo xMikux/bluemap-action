@@ -121,10 +121,6 @@ jobs:
           poetry install --no-interaction
 
       ### Start Script ###
-      - name: Temporary - Add Test folder
-        run: |
-          mkdir Test
-
       - name: Poetry - Download Latest backup
         run: |
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py
