@@ -17,3 +17,6 @@ jobs:
       SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
       SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
       SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+      PTERODACTYL_API_URL: ${{ secrets.PTERODACTYL_API_URL }}
+      PTERODACTYL_API_TOKEN: ${{ secrets.PTERODACTYL_API_TOKEN }}
+      PTERODACTYL_ID: ${{ secrets.PTERODACTYL_ID }}

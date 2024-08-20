@@ -1,2 +1,4 @@
-bin/
+Test
 .env
+*.tar.gz
+*.zip
