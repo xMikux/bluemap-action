@@ -1,14 +1,15 @@
 [tool.poetry]
 name = "bluemap-action"
-version = "0.0.1"
+version = "1.0.0"
 description = ""
 authors = ["Miku <26039249+xMikux@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 loguru = "^0.7.2"
 pysftp = "^0.2.9"
+py-dactyl = "^2.0.4"
 
 
 [build-system]
