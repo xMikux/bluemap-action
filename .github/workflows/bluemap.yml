@@ -134,10 +134,6 @@ jobs:
         run: |
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/01_unarchive.py
           df -h
-          ls -alh Test
-          du -sh Test/world
-          du -sh Test/world_nether
-          du -sh Test/world_the_end
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
           MAPS_LIST: ${{ inputs.maps_list }}
