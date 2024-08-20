@@ -56,6 +56,14 @@ jobs:
     runs-on: ${{ inputs.runner_name }}
 
     steps:
+      ### CleanUp make more space ###
+      - name: Clean - Remove unuse software
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo df -h
       ### Checkout Main and Reusable Workflows ###
       - name: Checkout Repository - Main
         uses: actions/checkout@v4
