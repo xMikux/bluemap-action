@@ -57,18 +57,22 @@ jobs:
 
     steps:
       ### CleanUp make more space ###
-      - name: Clean - Remove unuse software
+      - name: Clean - Remove unuse software & swap
         run: |
           echo "Before cleanup:"
           sudo df -h
+          sudo free
           echo ""
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force > /dev/null
+          sudo swapoff -a > /dev/null
+          sudo rm -f /mnt/swapfile
           echo "After cleanup:"
           sudo df -h
+          sudo free
           echo ""
           echo "list up:"
           sudo sudo du -xh / | sort -h
