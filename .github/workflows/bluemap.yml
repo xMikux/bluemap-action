@@ -124,12 +124,23 @@ jobs:
       - name: Poetry - Download Latest backup
         run: |
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py
-          ls -alh    
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
           PTERODACTYL_API_URL: ${{ secrets.PTERODACTYL_API_URL }}
           PTERODACTYL_API_TOKEN: ${{ secrets.PTERODACTYL_API_TOKEN }}
           PTERODACTYL_ID: ${{ secrets.PTERODACTYL_ID }}
+
+      - name: Poetry - Extract Maps
+        run: |
+          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/01_unarchive.py
+          df -h
+          ls -alh Test
+          du -sh Test/world
+          du -sh Test/world_nether
+          du -sh Test/world_the_end
+        env:
+          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+          MAPS_LIST: ${{ inputs.maps_list }}
 
       ### Download Maps ###
       # - name: Poetry - SFTP Download
