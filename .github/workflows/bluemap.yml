@@ -26,13 +26,13 @@ on:
         type: string
     secrets:
       SFTP_HOST_NAME:
-        required: true
+        required: false
         description: "SFTP Host Name"
       SFTP_USER_NAME:
-        required: true
+        required: false
         description: "SFTP User Name"
       SFTP_PASSWORD:
-        required: true
+        required: false
         description: "SFTP Password"
       PTERODACTYL_API_URL:
         required: true
