@@ -25,15 +25,6 @@ on:
         description: "Map list, separated by space."
         type: string
     secrets:
-      SFTP_HOST_NAME:
-        required: false
-        description: "SFTP Host Name"
-      SFTP_USER_NAME:
-        required: false
-        description: "SFTP User Name"
-      SFTP_PASSWORD:
-        required: false
-        description: "SFTP Password"
       PTERODACTYL_API_URL:
         required: true
         description: "Pterodactyl Panel URL"
@@ -151,6 +142,8 @@ jobs:
           poetry install --no-interaction
 
       ### Start Script ###
+
+      ### Download and extract maps
       - name: Poetry - Download Latest backup
         run: |
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py
@@ -167,6 +160,14 @@ jobs:
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
           MAPS_LIST: ${{ inputs.maps_list }}
+
+      ### Store web map build cache
+
+      ### Render Map web
+
+
+
+      ### Save web map build cache
 
       ### Download Maps ###
       # - name: Poetry - SFTP Download

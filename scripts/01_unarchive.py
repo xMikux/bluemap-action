@@ -16,7 +16,7 @@ def unarchive_folders(folder_list):
     with tarfile.open(CONFIG_PATH_ARCHIVE, "r:gz") as tar:
         for member in tar.getmembers():
             if any(member.name.startswith(folder) for folder in folder_list):
-                logger.success(f"Success unarchive {member.name}")
+                # logger.success(f"Success unarchive {member.name}")
                 tar.extract(member, path=MAPS_WORKDIR, filter=None)
 
 def get_directory_size(directory: Path):
