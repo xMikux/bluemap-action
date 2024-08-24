@@ -11,18 +11,22 @@ on:
         default: "ubuntu-latest"
       # BlueMap
       bluemap_version:
-        required: false
+        required: true
         description: "BlueMap version"
         type: string
         default: "5.3"
       # Misc
       workdir_path:
-        required: false
+        required: true
         description: "Bluemap workdir."
         type: string
       maps_list:
-        required: false
+        required: true
         description: "Map list, separated by space."
+        type: string
+      mc_version:
+        required: true
+        description: "The render map version"
         type: string
     secrets:
       PTERODACTYL_API_URL:
@@ -34,6 +38,12 @@ on:
       PTERODACTYL_ID:
         required: true
         description: "Pterodactyl Panel Server ID"
+      NETLIFY_AUTH_TOKEN:
+        required: true
+        description: "Netlify Token"
+      NETLIFY_SITE_ID:
+        required: true
+        description: "Netlify Site ID"
 
 env:
   python_version: "3.12"
@@ -164,30 +174,20 @@ jobs:
       ### Store web map build cache
 
       ### Render Map web
-
-
+      - name: BlueMap - Render Maps
+        run: |
+          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
+        working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
 
-      ### Download Maps ###
-      # - name: Poetry - SFTP Download
-      #   run: |
-      #     poetry run python $GITHUB_WORKSPACE/bluemap-act/scripts/sftp_downloader.py
-      #     du -sh Maps
-      #     ls -alh Maps        
-      #   env:
-      #     SFTP_HOST_NAME: ${{ secrets.SFTP_HOST_NAME }}
-      #     SFTP_USER_NAME: ${{ secrets.SFTP_USER_NAME }}
-      #     SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
-      #     MAP_LIST: ${{ inputs.maps_list }}
-      #   working-directory: ${{ inputs.workdir_path }}
-
-      ### Download Maps Cache
-
-      # - name: Publish
-      #   uses: South-Paw/action-netlify-cli@v2
-      #   with:
-      #     args: 'deploy --json --dir \"./public\" --message \"draft [${{ github.sha }}]\"'
-      #   env:
-      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      ### Publish Maps
+      - name: Netlify - Deploy Website
+        uses: South-Paw/action-netlify-cli@v2
+        id: netlify
+        with:
+          args: deploy --json --prod --dir './web' --message 'Deploy from GitHub Action'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        working-directory: ${{ inputs.workdir_path }}
