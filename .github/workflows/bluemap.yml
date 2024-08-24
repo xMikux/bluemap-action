@@ -11,7 +11,7 @@ on:
         default: "ubuntu-latest"
       # BlueMap
       bluemap_version:
-        required: true
+        required: false
         description: "BlueMap version"
         type: string
         default: "5.3"
