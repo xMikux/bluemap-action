@@ -179,6 +179,13 @@ jobs:
           java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
         working-directory: ${{ inputs.workdir_path }}
 
+      ### Replace string
+      - name: Poetry - Replace index.js function
+        run: |
+          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_fixer.py
+        env:
+          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+
       ### Save web map build cache
 
       ### Publish Maps
@@ -186,7 +193,7 @@ jobs:
         uses: South-Paw/action-netlify-cli@v2
         id: netlify
         with:
-          args: deploy --json --prod --dir './${{ inputs.workdir_path }}/web' --message 'Deploy from GitHub Action'
+          args: deploy --json --prod --dir './${{ inputs.workdir_path }}/web' --message \"Deploy from GitHub Action\"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
