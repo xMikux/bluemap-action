@@ -186,8 +186,7 @@ jobs:
         uses: South-Paw/action-netlify-cli@v2
         id: netlify
         with:
-          args: deploy --json --prod --dir './web' --message 'Deploy from GitHub Action'
+          args: deploy --json --prod --dir './${{ inputs.workdir_path }}/web' --message 'Deploy from GitHub Action'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        working-directory: ${{ inputs.workdir_path }}
