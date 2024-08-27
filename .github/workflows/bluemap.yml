@@ -190,10 +190,9 @@ jobs:
 
       ### Publish Maps
       - name: Netlify - Deploy Website
-        uses: South-Paw/action-netlify-cli@v2
-        id: netlify
-        with:
-          args: deploy --json --prod --dir './${{ inputs.workdir_path }}/web' --message \"Deploy from GitHub Action\"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npx netlify-cli deploy --prod --message 'Deploy from GitHub Action'
+        working-directory: ${{ inputs.workdir_path }}
