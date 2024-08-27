@@ -194,5 +194,6 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          npx netlify-cli deploy --prod --message 'Deploy from GitHub Action'
+          cd web
+          npx netlify-cli deploy --prod --message 'Deploy from GitHub Action' --dir '.'
         working-directory: ${{ inputs.workdir_path }}
