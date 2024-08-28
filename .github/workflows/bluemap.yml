@@ -3,6 +3,28 @@ name: BlueMap Render & Deploy
 on:
   workflow_call:
     inputs:
+      # Web Info
+      site_name:
+        required: true
+        description: "Website name, use at `og:site_name`"
+        type: string
+      site_content:
+        required: true
+        description: "Website content, use at `content`"
+        type: string
+      site_title:
+        required: true
+        description: "Website title, use at `title` and `og:title`"
+        type: string
+      site_date_time:
+        required: true
+        description: "Server open and close time, like `2023/12/31 ~ 2024/04/15`"
+        type: string
+      site_extra_info:
+        required: false
+        description: "Extra info, you can put html thing"
+        type: string
+        default: ""
       # GH Action
       runner_name:
         required: false
@@ -242,6 +264,18 @@ jobs:
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_js_fixer.py
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+
+      - name: Poetry - Replace index.html and lang placeholder
+        run: |
+          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/03_replacer.py
+        env:
+          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+          HTML_WEB_SITENAME: ${{ inputs.site_name }}
+          HTML_WEB_CONTENT: ${{ inputs.site_content }}
+          HTML_TITLE: ${{ inputs.site_title }}
+          MC_VERSION: ${{ inputs.mc_version }}
+          EXTRA_INFO_OPEN_TIME: ${{ inputs.site_date_time }}
+          EXTRA_INFO_FLAG: ${{ inputs.site_extra_info }}
 
       ### Publish Maps
       - name: Netlify - Deploy Website

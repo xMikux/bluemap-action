@@ -12,6 +12,7 @@ pysftp = "^0.2.9"
 py-dactyl = "^2.0.4"
 pooch = "^1.8.2"
 tqdm = "^4.66.5"
+pytz = "^2024.1"
 
 
 [build-system]
