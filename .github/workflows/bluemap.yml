@@ -77,31 +77,31 @@ jobs:
 
     steps:
       ### CleanUp make more space ###
-      # - name: Clean - Remove unuse software & swap
-      #   run: |
-      #     echo "Before cleanup:"
-      #     sudo df -h
-      #     sudo free -h
-      #     echo ""
-      #     sudo rm -rf /usr/share/dotnet
-      #     sudo rm -rf /usr/local/lib/android
-      #     sudo rm -rf /opt/ghc
-      #     sudo rm -rf /opt/hostedtoolcache/CodeQL
+      - name: Clean - Remove unuse software & swap
+        run: |
+          echo "Before cleanup:"
+          sudo df -h
+          sudo free -h
+          echo ""
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force > /dev/null
 
-      #     sudo swapoff -a > /dev/null
-      #     sudo rm -f /mnt/swapfile
-      #     sudo rm -rf /usr/share/swift
-      #     sudo rm -rf /usr/lib/google-cloud-sdk
-      #     sudo rm -rf /usr/lib/firefox
-      #     sudo rm -rf /usr/lib/heroku
-      #     sudo rm -rf /opt/microsoft/msedge
-      #     sudo rm -rf /usr/local/share/chromium
-      #     sudo rm -rf /usr/local/.ghcup
+          sudo swapoff -a > /dev/null
+          sudo rm -f /mnt/swapfile
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/lib/google-cloud-sdk
+          sudo rm -rf /usr/lib/firefox
+          sudo rm -rf /usr/lib/heroku
+          sudo rm -rf /opt/microsoft/msedge
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/.ghcup
 
-      #     echo "After cleanup:"
-      #     sudo df -h
-      #     sudo free -h
-        #  sudo docker image prune --all --force > /dev/null
+          echo "After cleanup:"
+          sudo df -h
+          sudo free -h
         #  echo ""
         #  echo "list up:"
         #  sudo sudo du -xh / | sort -h
@@ -134,6 +134,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python_version }}
+
+      - name: Setup - S3cmd Cli Tool
+        uses: xMikux/s3cmd@main
+        with:
+          provider: ${{ inputs.s3_provider }}
+          region: ${{ inputs.s3_region }}
+          access_key: ${{ secrets.S3_ACCESS_KEY }}
+          secret_key: ${{ secrets.S3_SECRET_KEY }}
 
       - name: Setup - Move Poetry Project Files
         run: |
@@ -191,43 +199,42 @@ jobs:
           MAPS_LIST: ${{ inputs.maps_list }}
 
       ### Store web map build cache
-      # - name: S3 - Restore Web Cache
-      #   uses: keithweaver/aws-s3-github-action@v1.0.0
-      #   continue-on-error: true
-      #   with:
-      #     command: cp
-      #     source: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
-      #     destination: ./maps-cache-data.tar.xz
-      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: S3 - Restore Maps Cache
+        continue-on-error: true
+        run: |
+          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -g
+          cd web
+          s3cmd get s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz maps-cache-data.tar.xz
+          tar -Jxf maps-cache-data.tar.xz
+          rm maps-cache-data.tar.xz
+          ls -alh
+        working-directory: ${{ inputs.workdir_path }}
+
+      - name: BlueMap - Setup Global Config
+        continue-on-error: true
+        run: |
+          cp $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/netlify/netlify.toml web/
+          rm -r web/lang
+          cp -r $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/bluemap_web/lang web/
+        working-directory: ${{ inputs.workdir_path }}
 
       ### Render Map web
-      # - name: BlueMap - Render Maps
-      #   run: |
-      #     java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
-      #     du -sh web/maps
-      #   working-directory: ${{ inputs.workdir_path }}
-
-      - name: S3 - Compress Maps Data
+      - name: BlueMap - Render Maps
         run: |
-          cd web
-          fallocate -l 500M maps-cache-data.tar.xz
-          du -sh maps-cache-data.tar.xz
-        #  XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
+          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
+          du -sh web/maps
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
-      - name: Set up S3cmd cli tool
-        uses: xMikux/s3cmd@main
-        with:
-          provider: ${{ inputs.s3_provider }}
-          region: ${{ inputs.s3_region }}
-          access_key: ${{ secrets.S3_ACCESS_KEY }}
-          secret_key: ${{ secrets.S3_SECRET_KEY }}
-
-      - name: S3 - Save Web Cache
+      - name: S3 - Save Maps Cache
         run: |
+          cd web
+          XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
+          du -sh maps-cache-data.tar.xz
           s3cmd put ${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          rm maps-cache-data.tar.xz
+          ls -alh
+        working-directory: ${{ inputs.workdir_path }}
 
       ### Replace string
       - name: Poetry - Replace index.js function
