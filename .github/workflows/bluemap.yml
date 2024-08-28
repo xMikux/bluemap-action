@@ -15,6 +15,15 @@ on:
         description: "BlueMap version"
         type: string
         default: "5.3"
+      # S3 Cache
+      s3_endpoint:
+        required: true
+        description: "S3 Endpoint URL"
+        type: string
+      s3_bucket_name:
+        required: true
+        description: "S3 Bucket Name"
+        type: string
       # Misc
       workdir_path:
         required: true
@@ -44,6 +53,13 @@ on:
       NETLIFY_SITE_ID:
         required: true
         description: "Netlify Site ID"
+      # S3 Cache
+      S3_ACCESS_KEY:
+        required: true
+        description: "S3 Access Key"
+      S3_SECRET_KEY:
+        required: true
+        description: "S3 Secret Key"
 
 env:
   python_version: "3.12"
@@ -172,12 +188,37 @@ jobs:
           MAPS_LIST: ${{ inputs.maps_list }}
 
       ### Store web map build cache
+      # - name: S3 - Restore Web Cache
+      #   uses: keithweaver/aws-s3-github-action@v1.0.0
+      #   with:
+      #     command: cp
+      #     source: ./local_file.txt
+      #     destination: s3://yourbucket/folder/local_file.txt
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       ### Render Map web
       - name: BlueMap - Render Maps
         run: |
           java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
+          du -sh web/maps
         working-directory: ${{ inputs.workdir_path }}
+S3_ACCESS_KEY
+      - name: S3 - Compress Maps Data
+        run: |
+          cd web
+          XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
+        working-directory: ${{ inputs.workdir_path }}
+
+      ### Save web map build cache
+      - name: S3 - Save Web Cache
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: ./${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz
+          destination: s3://${{ inputs.s3_endpoint }}/${{ inputs.s3_bucket_name }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          aws_access_key_id: ${{ secrets.S3_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_KEY }}
 
       ### Replace string
       - name: Poetry - Replace index.js function
@@ -185,8 +226,6 @@ jobs:
           poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_fixer.py
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
-
-      ### Save web map build cache
 
       ### Publish Maps
       - name: Netlify - Deploy Website
