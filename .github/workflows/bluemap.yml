@@ -81,7 +81,6 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force > /dev/null
 
           sudo swapoff -a > /dev/null
           sudo rm -f /mnt/swapfile
@@ -96,6 +95,7 @@ jobs:
           echo "After cleanup:"
           sudo df -h
           sudo free -h
+        #  sudo docker image prune --all --force > /dev/null
         #  echo ""
         #  echo "list up:"
         #  sudo sudo du -xh / | sort -h
