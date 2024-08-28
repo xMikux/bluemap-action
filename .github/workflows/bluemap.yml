@@ -244,13 +244,15 @@ jobs:
       - name: Verify - Check directory structure
         continue-on-error: true
         run: |
-          echo "Check workdir"  
+          echo "-- Check workdir"  
           ls -alh
-          echo "Check web dir"
+          echo "-- Check maps"  
+          ls -alh Maps
+          echo "-- Check web dir"
           ls -alh web
-          echo "Check web lang dir"
+          echo "-- Check web lang dir"
           ls -alh web/lang
-          echo "Check web maps dir"
+          echo "-- Check web maps dir"
           ls -alh web/maps
         working-directory: ${{ inputs.workdir_path }}
 
