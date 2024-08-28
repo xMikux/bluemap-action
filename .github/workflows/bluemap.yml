@@ -28,6 +28,14 @@ on:
         required: true
         description: "The render map version"
         type: string
+      s3_provider:
+        required: true
+        description: "s3cmd action provider"
+        type: string
+      s3_region:
+        required: true
+        description: "s3cmd action region"
+        type: string
     secrets:
       PTERODACTYL_API_URL:
         required: true
@@ -45,9 +53,6 @@ on:
         required: true
         description: "Netlify Site ID"
       # S3 Cache
-      S3_ENDPOINT:
-        required: true
-        description: "S3 Endpoint URL"
       S3_BUCKET_NAME:
         required: true
         description: "S3 Bucket Name"
@@ -205,23 +210,22 @@ jobs:
       - name: S3 - Compress Maps Data
         run: |
           cd web
-          fallocate -l 1G maps-cache-data.tar.xz
+          fallocate -l 500M maps-cache-data.tar.xz
           du -sh maps-cache-data.tar.xz
         #  XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
       - name: Set up S3cmd cli tool
-        uses: s3-actions/s3cmd@v1.6.1
+        uses: xMikux/s3cmd@main
         with:
-          provider: aws # default is linode
-          region: 'eu-central-1'
+          provider: ${{ inputs.s3_provider }}
+          region: ${{ inputs.s3_region }}
           access_key: ${{ secrets.S3_ACCESS_KEY }}
           secret_key: ${{ secrets.S3_SECRET_KEY }}
 
       - name: S3 - Save Web Cache
         run: |
-          s3cmd mb --host ${{ secrets.S3_ENDPOINT }}  s3://${{ secrets.S3_BUCKET_NAME }}
           s3cmd put ${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
 
       ### Replace string
