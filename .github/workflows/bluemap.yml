@@ -48,11 +48,9 @@ on:
       S3_ENDPOINT:
         required: true
         description: "S3 Endpoint URL"
-        type: string
       S3_BUCKET_NAME:
         required: true
         description: "S3 Bucket Name"
-        type: string
       S3_ACCESS_KEY:
         required: true
         description: "S3 Access Key"
