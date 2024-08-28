@@ -71,30 +71,30 @@ jobs:
 
     steps:
       ### CleanUp make more space ###
-      - name: Clean - Remove unuse software & swap
-        run: |
-          echo "Before cleanup:"
-          sudo df -h
-          sudo free -h
-          echo ""
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
+      # - name: Clean - Remove unuse software & swap
+      #   run: |
+      #     echo "Before cleanup:"
+      #     sudo df -h
+      #     sudo free -h
+      #     echo ""
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf /usr/local/lib/android
+      #     sudo rm -rf /opt/ghc
+      #     sudo rm -rf /opt/hostedtoolcache/CodeQL
 
-          sudo swapoff -a > /dev/null
-          sudo rm -f /mnt/swapfile
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/lib/google-cloud-sdk
-          sudo rm -rf /usr/lib/firefox
-          sudo rm -rf /usr/lib/heroku
-          sudo rm -rf /opt/microsoft/msedge
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/.ghcup
+      #     sudo swapoff -a > /dev/null
+      #     sudo rm -f /mnt/swapfile
+      #     sudo rm -rf /usr/share/swift
+      #     sudo rm -rf /usr/lib/google-cloud-sdk
+      #     sudo rm -rf /usr/lib/firefox
+      #     sudo rm -rf /usr/lib/heroku
+      #     sudo rm -rf /opt/microsoft/msedge
+      #     sudo rm -rf /usr/local/share/chromium
+      #     sudo rm -rf /usr/local/.ghcup
 
-          echo "After cleanup:"
-          sudo df -h
-          sudo free -h
+      #     echo "After cleanup:"
+      #     sudo df -h
+      #     sudo free -h
         #  sudo docker image prune --all --force > /dev/null
         #  echo ""
         #  echo "list up:"
@@ -213,6 +213,9 @@ jobs:
       ### Save web map build cache
       - name: S3 - Save Web Cache
         uses: keithweaver/aws-s3-github-action@v1.0.0
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
         with:
           command: cp
           source: ./${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz
