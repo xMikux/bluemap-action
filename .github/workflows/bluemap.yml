@@ -28,6 +28,7 @@ on:
         required: true
         description: "The render map version"
         type: string
+      # s3 cache
       s3_provider:
         required: true
         description: "s3cmd action provider"
@@ -52,7 +53,7 @@ on:
       NETLIFY_SITE_ID:
         required: true
         description: "Netlify Site ID"
-      # S3 Cache
+      # s3 Cache
       S3_BUCKET_NAME:
         required: true
         description: "S3 Bucket Name"
@@ -217,7 +218,7 @@ jobs:
 
       ### Save web map build cache
       - name: Set up S3cmd cli tool
-        uses: xMikux/s3cmd@main
+        uses: xMikux/s3cmd@ef6ce583c6f4e5c121c53777f2f17740c36243be
         with:
           provider: ${{ inputs.s3_provider }}
           region: ${{ inputs.s3_region }}
