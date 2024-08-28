@@ -240,6 +240,20 @@ jobs:
           cp -r $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/bluemap_web/lang web/
         working-directory: ${{ inputs.workdir_path }}
 
+      ### Verify structure
+      - name: Verify - Check directory structure
+        continue-on-error: true
+        run: |
+          echo "Check workdir"  
+          ls -alh
+          echo "Check web dir"
+          ls -alh web
+          echo "Check web lang dir"
+          ls -alh web/lang
+          echo "Check web maps dir"
+          ls -alh web/maps
+        working-directory: ${{ inputs.workdir_path }}
+
       ### Render Map web
       - name: BlueMap - Render Maps
         run: |
