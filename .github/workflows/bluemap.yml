@@ -239,7 +239,7 @@ jobs:
       ### Replace string
       - name: Poetry - Replace index.js function
         run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_fixer.py
+          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_js_fixer.py
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
 
