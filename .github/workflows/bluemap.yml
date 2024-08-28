@@ -190,7 +190,7 @@ jobs:
         continue-on-error: true
         with:
           command: cp
-          source: s3://${{ secrets.S3_ENDPOINT }}/${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          source: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
           destination: ./maps-cache-data.tar.xz
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -206,6 +206,7 @@ jobs:
         run: |
           cd web
           XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
+          du -sh maps-cache-data.tar.xz
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
@@ -214,7 +215,7 @@ jobs:
         with:
           command: cp
           source: ./${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz
-          destination: s3://${{ secrets.S3_ENDPOINT }}/${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          destination: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
           aws_access_key_id: ${{ secrets.S3_ACCESS_KEY }}
           aws_secret_access_key: ${{ secrets.S3_SECRET_KEY }}
 
