@@ -231,7 +231,7 @@ jobs:
           cd web
           XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
           du -sh maps-cache-data.tar.xz
-          s3cmd put ${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          s3cmd put maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
           rm maps-cache-data.tar.xz
           ls -alh
         working-directory: ${{ inputs.workdir_path }}
