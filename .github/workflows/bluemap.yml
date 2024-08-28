@@ -196,17 +196,18 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       ### Render Map web
-      - name: BlueMap - Render Maps
-        run: |
-          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
-          du -sh web/maps
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: BlueMap - Render Maps
+      #   run: |
+      #     java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
+      #     du -sh web/maps
+      #   working-directory: ${{ inputs.workdir_path }}
 
       - name: S3 - Compress Maps Data
         run: |
           cd web
-          XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
+          fallocate -l 1G maps-cache-data.tar.xz
           du -sh maps-cache-data.tar.xz
+        #  XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
