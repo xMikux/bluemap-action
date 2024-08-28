@@ -185,15 +185,15 @@ jobs:
           MAPS_LIST: ${{ inputs.maps_list }}
 
       ### Store web map build cache
-      - name: S3 - Restore Web Cache
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        continue-on-error: true
-        with:
-          command: cp
-          source: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
-          destination: ./maps-cache-data.tar.xz
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # - name: S3 - Restore Web Cache
+      #   uses: keithweaver/aws-s3-github-action@v1.0.0
+      #   continue-on-error: true
+      #   with:
+      #     command: cp
+      #     source: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+      #     destination: ./maps-cache-data.tar.xz
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       ### Render Map web
       # - name: BlueMap - Render Maps
@@ -211,17 +211,18 @@ jobs:
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
-      - name: S3 - Save Web Cache
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
+      - name: Set up S3cmd cli tool
+        uses: s3-actions/s3cmd@v1.6.1
         with:
-          command: cp
-          source: ./${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz
-          destination: s3://${{ secrets.S3_BUCKET_NAME }}.${{ secrets.S3_ENDPOINT }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
-          aws_access_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_KEY }}
+          provider: aws # default is linode
+          region: 'eu-central-1'
+          access_key: ${{ secrets.S3_ACCESS_KEY }}
+          secret_key: ${{ secrets.S3_SECRET_KEY }}
+
+      - name: S3 - Save Web Cache
+        run: |
+          s3cmd mb --host ${{ secrets.S3_ENDPOINT }}  s3://${{ secrets.S3_BUCKET_NAME }}
+          s3cmd put ${{ inputs.workdir_path }}/web/maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
 
       ### Replace string
       - name: Poetry - Replace index.js function
