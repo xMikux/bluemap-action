@@ -158,7 +158,7 @@ jobs:
           python-version: ${{ env.python_version }}
 
       - name: Setup - S3cmd Cli Tool
-        uses: xMikux/s3cmd@main
+        uses: s3-actions/s3cmd@v1.7.0
         with:
           provider: ${{ inputs.s3_provider }}
           region: ${{ inputs.s3_region }}
