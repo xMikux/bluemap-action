@@ -205,7 +205,7 @@ jobs:
       ### Download and extract maps
       - name: Poetry - Download Latest backup
         run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py > /dev/null 2>&1
+          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py
         env:
           MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
           PTERODACTYL_API_URL: ${{ secrets.PTERODACTYL_API_URL }}
