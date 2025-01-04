@@ -13,14 +13,17 @@ logger.info(f"Index path is {WEB_INDEX_PATH}")
 # Replace List
 REPLACE_LIST = [
     ("\".prbm\"", "\".prbm.gz\""),
-    ("\"textures.json\"", "\"textures.json.gz\"")
+    ("\"/textures.json\"", "\"/textures.json.gz\"")
 ]
 
 def run_replace(old_string: str, new_string: str):
     js_data = WEB_INDEX_PATH.read_text()
-    new_js_data = js_data.replace(old_string, new_string)
-    WEB_INDEX_PATH.write_text(new_js_data)
-    logger.success(f"Replace {old_string} to {new_string}!")
+    if old_string in js_data:
+        new_js_data = js_data.replace(old_string, new_string)
+        WEB_INDEX_PATH.write_text(new_js_data)
+        logger.success(f"Replace {old_string} to {new_string}!")
+    else:
+        logger.error(f"Cannot find {old_string} in {WEB_INDEX_PATH}!")
 
 for old, new in REPLACE_LIST:
     run_replace(old, new)
