@@ -222,7 +222,7 @@ jobs:
         run: |
           java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -g
           cd web
-          s3cmd get s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz - | pv | tar -xJf -
+          s3cmd --no-progress get s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz - | pv | tar -xJf -
           ls -alh
           df -h
         working-directory: ${{ inputs.workdir_path }}
@@ -264,7 +264,7 @@ jobs:
         run: |
           df -h
           cd web
-          XZ_OPT='-T9' tar -cJf - maps | pv | s3cmd put - s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+          XZ_OPT='-T9' tar -cJf - maps | pv | s3cmd --no-check-md5 put - s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
           df -h
           ls -alh
         working-directory: ${{ inputs.workdir_path }}
