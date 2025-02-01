@@ -89,7 +89,6 @@ on:
 env:
   python_version: "3.12"
   reusable_workflows_ref: dev
-  poetry_installation_cache_key: poetry_cache_01
   LOGURU_LEVEL: "INFO"
 
 jobs:
@@ -170,17 +169,10 @@ jobs:
           cp .github/reusable-workflows/pyproject.toml .
           cp .github/reusable-workflows/poetry.lock .
 
-      - name: Cache - Poetry Installation
-        id: poetry_installation_cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.local
-          key: ${{ env.poetry_installation_cache_key }}
-
       - name: Setup - Poetry Install
-        if: ${{ steps.poetry_installation_cache.outputs.cache-hit != 'true' }}
         uses: snok/install-poetry@v1
         with:
+          version: 1.8.5
           virtualenvs-create: true
           virtualenvs-in-project: true
           virtualenvs-path: .venv
