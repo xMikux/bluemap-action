@@ -222,6 +222,7 @@ jobs:
           tar -Jxf maps-cache-data.tar.xz
           rm maps-cache-data.tar.xz
           ls -alh
+          df -h
         working-directory: ${{ inputs.workdir_path }}
 
       - name: BlueMap - Setup Global Config
@@ -253,16 +254,20 @@ jobs:
         run: |
           java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
           du -sh web/maps
+          df -h
         working-directory: ${{ inputs.workdir_path }}
 
       ### Save web map build cache
       - name: S3 - Save Maps Cache
         run: |
+          df -h
           cd web
           XZ_OPT='-T9' tar -cJf maps-cache-data.tar.xz maps/
           du -sh maps-cache-data.tar.xz
+          df -h
           s3cmd put maps-cache-data.tar.xz s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
           rm maps-cache-data.tar.xz
+          df -h
           ls -alh
         working-directory: ${{ inputs.workdir_path }}
 
