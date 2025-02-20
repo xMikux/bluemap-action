@@ -58,7 +58,7 @@ def run_info_replace():
         return formatted_time
 
     info_format_zh_tw = f"""
-  這張地圖用 &#9829; 產生，使用 <a href="https://bluecolo.red/bluemap">BlueMap</a> {{version}}<br/>
+  這張地圖使用 <a href="https://bluecolo.red/bluemap">BlueMap</a> {{version}} 充滿愛心 &#9829 地製作而成<br/>
   建構於 {current_date()}<br/>
   繪製版本 {MC_VERSION}<br/>
   開服時間 {EXTRA_INFO_OPEN_TIME}<br/>
