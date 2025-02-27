@@ -16,7 +16,7 @@ HTML_TITLE = os.environ.get("HTML_TITLE")
 WEB_PATH = CONFIG_PATH.joinpath("web")
 WEB_INDEX_PATH = WEB_PATH.joinpath("index.html")
 LANG_EN_PATH = WEB_PATH.joinpath("lang/en.conf")
-LANG_ZH_TW_PATH = WEB_PATH.joinpath("lang/zh_TW.conf")
+LANG_ZH_TW_PATH = WEB_PATH.joinpath("lang/zh-TW.conf")
 
 # Misc
 MC_VERSION = os.environ.get("MC_VERSION")
