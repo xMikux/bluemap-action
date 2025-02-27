@@ -97,65 +97,6 @@ jobs:
     runs-on: ${{ inputs.runner_name }}
 
     steps:
-      ### CleanUp make more space ###
-      - name: Clean - Remove unuse software & swap
-        run: |
-          echo "Before cleanup:"
-          sudo df -h
-          sudo free -h
-          echo ""
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force > /dev/null
-
-          sudo swapoff -a > /dev/null
-          sudo rm -f /mnt/swapfile
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/lib/google-cloud-sdk
-          sudo rm -rf /usr/lib/firefox
-          sudo rm -rf /usr/lib/heroku
-          sudo rm -rf /opt/microsoft/msedge
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/.ghcup
-
-          echo "After cleanup:"
-          sudo df -h
-          sudo free -h
-        #  echo ""
-        #  echo "list up:"
-        #  sudo sudo du -xh / | sort -h
-
-      ### Checkout Main and Reusable Workflows ###
-      - name: Checkout Repository - Main
-        uses: actions/checkout@v4
-
-      - name: Checkout Repository - BlueMap Action
-        uses: actions/checkout@v4
-        with:
-          repository: EfinaProjects/bluemap-action
-          ref: ${{ env.reusable_workflows_ref }}
-          path: .github/reusable-workflows
-
-      ### Setup script dependencies ###
-      - name: Setup - Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
-
-      - name: Setup - BlueMap
-        run: |
-          wget -O cli.jar https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v${{ inputs.bluemap_version }}/BlueMap-${{ inputs.bluemap_version }}-cli.jar
-          java -jar cli.jar -V 
-        working-directory: .github/reusable-workflows
-
-      - name: Setup - Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python_version }}
-
       - name: Setup - S3cmd Cli Tool
         uses: s3-actions/s3cmd@v1.7.0
         with:
@@ -163,137 +104,207 @@ jobs:
           region: ${{ inputs.s3_region }}
           access_key: ${{ secrets.S3_ACCESS_KEY }}
           secret_key: ${{ secrets.S3_SECRET_KEY }}
+      - name: Test - Hello World
+        run: echo "Hello World" > hello.txt
+      - name: S3 - Upload Hello World
+        run: s3cmd put hello.txt s3://${{ secrets.S3_BUCKET_NAME }}/hello.txt
+      # ### CleanUp make more space ###
+      # - name: Clean - Remove unuse software & swap
+      #   run: |
+      #     echo "Before cleanup:"
+      #     sudo df -h
+      #     sudo free -h
+      #     echo ""
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf /usr/local/lib/android
+      #     sudo rm -rf /opt/ghc
+      #     sudo rm -rf /opt/hostedtoolcache/CodeQL
+      #     sudo docker image prune --all --force > /dev/null
 
-      - name: Setup - Move Poetry Project Files
-        run: |
-          cp .github/reusable-workflows/pyproject.toml .
-          cp .github/reusable-workflows/poetry.lock .
+      #     sudo swapoff -a > /dev/null
+      #     sudo rm -f /mnt/swapfile
+      #     sudo rm -rf /usr/share/swift
+      #     sudo rm -rf /usr/lib/google-cloud-sdk
+      #     sudo rm -rf /usr/lib/firefox
+      #     sudo rm -rf /usr/lib/heroku
+      #     sudo rm -rf /opt/microsoft/msedge
+      #     sudo rm -rf /usr/local/share/chromium
+      #     sudo rm -rf /usr/local/.ghcup
 
-      - name: Setup - Poetry Install
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.5
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          virtualenvs-path: .venv
-          installer-parallel: true
+      #     echo "After cleanup:"
+      #     sudo df -h
+      #     sudo free -h
+      #   #  echo ""
+      #   #  echo "list up:"
+      #   #  sudo sudo du -xh / | sort -h
 
-      - name: Cache - Poetry Dependencies
-        id: poetry_dependencies_cache
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
+      # ### Checkout Main and Reusable Workflows ###
+      # - name: Checkout Repository - Main
+      #   uses: actions/checkout@v4
 
-      - name: Setup - Poetry install dependencies
-        if: ${{ steps.poetry_dependencies_cache.outputs.cache-hit != 'true' }}
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-          poetry install --no-interaction
+      # - name: Checkout Repository - BlueMap Action
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: EfinaProjects/bluemap-action
+      #     ref: ${{ env.reusable_workflows_ref }}
+      #     path: .github/reusable-workflows
 
-      - name: Setup - pv
-        run: |
-          sudo apt-get install -yq pv
+      # ### Setup script dependencies ###
+      # - name: Setup - Java 21
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: "temurin"
+      #     java-version: "21"
 
-      ### Start Script ###
+      # - name: Setup - BlueMap
+      #   run: |
+      #     wget -O cli.jar https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v${{ inputs.bluemap_version }}/BlueMap-${{ inputs.bluemap_version }}-cli.jar
+      #     java -jar cli.jar -V 
+      #   working-directory: .github/reusable-workflows
 
-      ### Download and extract maps
-      - name: Poetry - Download Latest backup
-        run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py > /dev/null 2>&1
-        env:
-          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
-          PTERODACTYL_API_URL: ${{ secrets.PTERODACTYL_API_URL }}
-          PTERODACTYL_API_TOKEN: ${{ secrets.PTERODACTYL_API_TOKEN }}
-          PTERODACTYL_ID: ${{ secrets.PTERODACTYL_ID }}
+      # - name: Setup - Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: ${{ env.python_version }}
 
-      - name: Poetry - Extract Maps
-        run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/01_unarchive.py
-          df -h
-        env:
-          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
-          MAPS_LIST: ${{ inputs.maps_list }}
+      # - name: Setup - S3cmd Cli Tool
+      #   uses: s3-actions/s3cmd@v1.7.0
+      #   with:
+      #     provider: ${{ inputs.s3_provider }}
+      #     region: ${{ inputs.s3_region }}
+      #     access_key: ${{ secrets.S3_ACCESS_KEY }}
+      #     secret_key: ${{ secrets.S3_SECRET_KEY }}
 
-      ### Store web map build cache
-      - name: S3 - Restore Maps Cache
-        continue-on-error: true
-        run: |
-          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -g
-          cd web
-          s3cmd --no-progress get s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz - | pv | tar -xJf -
-          ls -alh
-          df -h
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Setup - Move Poetry Project Files
+      #   run: |
+      #     cp .github/reusable-workflows/pyproject.toml .
+      #     cp .github/reusable-workflows/poetry.lock .
 
-      - name: BlueMap - Setup Global Config
-        continue-on-error: true
-        run: |
-          cp $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/netlify/netlify.toml web/
-          rm -r web/lang
-          cp -r $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/bluemap_web/lang web/
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Setup - Poetry Install
+      #   uses: snok/install-poetry@v1
+      #   with:
+      #     version: 1.8.5
+      #     virtualenvs-create: true
+      #     virtualenvs-in-project: true
+      #     virtualenvs-path: .venv
+      #     installer-parallel: true
 
-      ### Verify structure
-      - name: Verify - Check directory structure
-        continue-on-error: true
-        run: |
-          echo "-- Check workdir"  
-          ls -alh
-          echo "-- Check maps"  
-          ls -alh Maps
-          echo "-- Check web dir"
-          ls -alh web
-          echo "-- Check web lang dir"
-          ls -alh web/lang
-          echo "-- Check web maps dir"
-          ls -alh web/maps
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Cache - Poetry Dependencies
+      #   id: poetry_dependencies_cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ./.venv
+      #     key: venv-${{ hashFiles('poetry.lock') }}
 
-      ### Render Map web
-      - name: BlueMap - Render Maps
-        run: |
-          java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
-          du -sh web/maps
-          df -h
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Setup - Poetry install dependencies
+      #   if: ${{ steps.poetry_dependencies_cache.outputs.cache-hit != 'true' }}
+      #   run: |
+      #     poetry config virtualenvs.create true --local
+      #     poetry config virtualenvs.in-project true --local
+      #     poetry install --no-interaction
 
-      ### Save web map build cache
-      - name: S3 - Save Maps Cache
-        run: |
-          df -h
-          cd web
-          XZ_OPT='-T9' tar -cJf - maps | pv | s3cmd --no-check-md5 put - s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
-          df -h
-          ls -alh
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Setup - pv
+      #   run: |
+      #     sudo apt-get install -yq pv
 
-      ### Replace string
-      - name: Poetry - Replace index.js function
-        run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_js_fixer.py
-        env:
-          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+      # ### Start Script ###
 
-      - name: Poetry - Replace index.html and lang placeholder
-        run: |
-          poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/03_replacer.py
-        env:
-          MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
-          HTML_WEB_SITENAME: ${{ inputs.site_name }}
-          HTML_WEB_CONTENT: ${{ inputs.site_content }}
-          HTML_TITLE: ${{ inputs.site_title }}
-          MC_VERSION: ${{ inputs.mc_version }}
-          EXTRA_INFO_OPEN_TIME: ${{ inputs.site_date_time }}
-          EXTRA_INFO_FLAG: ${{ inputs.site_extra_info }}
+      # ### Download and extract maps
+      # - name: Poetry - Download Latest backup
+      #   run: |
+      #     poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/00_pydactyl_s3.py > /dev/null 2>&1
+      #   env:
+      #     MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+      #     PTERODACTYL_API_URL: ${{ secrets.PTERODACTYL_API_URL }}
+      #     PTERODACTYL_API_TOKEN: ${{ secrets.PTERODACTYL_API_TOKEN }}
+      #     PTERODACTYL_ID: ${{ secrets.PTERODACTYL_ID }}
 
-      ### Publish Maps
-      - name: Netlify - Deploy Website
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          cd web
-          npx netlify-cli deploy --prod --message 'Deploy from GitHub Action' --dir '.'
-        working-directory: ${{ inputs.workdir_path }}
+      # - name: Poetry - Extract Maps
+      #   run: |
+      #     poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/01_unarchive.py
+      #     df -h
+      #   env:
+      #     MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+      #     MAPS_LIST: ${{ inputs.maps_list }}
+
+      # ### Store web map build cache
+      # - name: S3 - Restore Maps Cache
+      #   continue-on-error: true
+      #   run: |
+      #     java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -g
+      #     cd web
+      #     s3cmd --no-progress get s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz - | pv | tar -xJf -
+      #     ls -alh
+      #     df -h
+      #   working-directory: ${{ inputs.workdir_path }}
+
+      # - name: BlueMap - Setup Global Config
+      #   continue-on-error: true
+      #   run: |
+      #     cp $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/netlify/netlify.toml web/
+      #     rm -r web/lang
+      #     cp -r $GITHUB_WORKSPACE/.github/reusable-workflows/global_config/bluemap_web/lang web/
+      #   working-directory: ${{ inputs.workdir_path }}
+
+      # ### Verify structure
+      # - name: Verify - Check directory structure
+      #   continue-on-error: true
+      #   run: |
+      #     echo "-- Check workdir"  
+      #     ls -alh
+      #     echo "-- Check maps"  
+      #     ls -alh Maps
+      #     echo "-- Check web dir"
+      #     ls -alh web
+      #     echo "-- Check web lang dir"
+      #     ls -alh web/lang
+      #     echo "-- Check web maps dir"
+      #     ls -alh web/maps
+      #   working-directory: ${{ inputs.workdir_path }}
+
+      # ### Render Map web
+      # - name: BlueMap - Render Maps
+      #   run: |
+      #     java -jar $GITHUB_WORKSPACE/.github/reusable-workflows/cli.jar -v ${{ inputs.mc_version }} -r
+      #     du -sh web/maps
+      #     df -h
+      #   working-directory: ${{ inputs.workdir_path }}
+
+      # ### Save web map build cache
+      # - name: S3 - Save Maps Cache
+      #   run: |
+      #     df -h
+      #     cd web
+      #     XZ_OPT='-T9' tar -cJf - maps | pv | s3cmd --no-check-md5 put - s3://${{ secrets.S3_BUCKET_NAME }}/${{ inputs.workdir_path }}/maps-cache-data.tar.xz
+      #     df -h
+      #     ls -alh
+      #   working-directory: ${{ inputs.workdir_path }}
+
+      # ### Replace string
+      # - name: Poetry - Replace index.js function
+      #   run: |
+      #     poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/02_index_js_fixer.py
+      #   env:
+      #     MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+
+      # - name: Poetry - Replace index.html and lang placeholder
+      #   run: |
+      #     poetry run python $GITHUB_WORKSPACE/.github/reusable-workflows/scripts/03_replacer.py
+      #   env:
+      #     MAP_CONFIG_PATH: ${{ inputs.workdir_path }}
+      #     HTML_WEB_SITENAME: ${{ inputs.site_name }}
+      #     HTML_WEB_CONTENT: ${{ inputs.site_content }}
+      #     HTML_TITLE: ${{ inputs.site_title }}
+      #     MC_VERSION: ${{ inputs.mc_version }}
+      #     EXTRA_INFO_OPEN_TIME: ${{ inputs.site_date_time }}
+      #     EXTRA_INFO_FLAG: ${{ inputs.site_extra_info }}
+
+      # ### Publish Maps
+      # - name: Netlify - Deploy Website
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      #   run: |
+      #     cd web
+      #     npx netlify-cli deploy --prod --message 'Deploy from GitHub Action' --dir '.'
+      #   working-directory: ${{ inputs.workdir_path }}
